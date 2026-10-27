@@ -53,7 +53,7 @@ export const projects: Project[] = [
       "Application web développée dans le cadre de mon Bachelor Développeur Web, en utilisant React avec Redux, celle-ci est directement liée à l'API officielle de Spotify. Il faut posséder un compte Spotify premium pour avoir accès aux fonctionnalités.",
     description_en:
       "Web application developed as part of my professional training in Applied Sciences, using React with Redux. It connects directly to the official Spotify API. A Spotify Premium account is required to access the features.",
-    directLink: "https://scuffedify.vercel.app/",
+    directLink: "https://tev4.github.io/scuffedify/",
     githubLink: "https://github.com/Tev4/scuffedify",
   },
 
@@ -93,7 +93,7 @@ export const projects: Project[] = [
       "Jeu vidéo dans lequel vous incarnez un sorcier qui doit défendre son château, la vitesse du jeu augmente avec le temps, ce qui rend très difficile pour les joueurs de rester en vie en pendant longtemps les fichiers sont disponibles sur le dépôt Github ainsi qu'un site web qui explique les controles du jeu.",
     description_en:
       "A video game where you play as a wizard defending your castle. The game speed increases over time, making it very challenging for players to survive for long. The files are available on the GitHub repository, along with a website explaining the game controls.",
-    directLink: "https://wizard-defender.vercel.app/",
+    directLink: "https://tev4.github.io/Wizard_Defender_Website/",
     githubLink: "https://github.com/Tev4/Wizard_Defender",
   },
   {
