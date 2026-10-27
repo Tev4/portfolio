@@ -8,6 +8,7 @@ import { BootstrapVueNextResolver } from "bootstrap-vue-next/resolvers";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/portfolio/",
   plugins: [
     vue(),
     vueDevTools(),
