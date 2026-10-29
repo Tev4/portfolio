@@ -97,6 +97,7 @@ onMounted(async () => {
   await loadProjectImages(props.project);
   if (!isMobile.value) {
     await nextTick();
+if (myCarousel.value?.$el) { myCarousel.value.$el.addEventListener('dragstart', (e) => e.preventDefault()); }
     myCarousel.value?.pause();
   }
 });

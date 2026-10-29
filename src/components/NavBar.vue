@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useDark } from "@vueuse/core";
 import { useLanguage } from "@/composables/useLanguage";
+import frFlag from "@/assets/flags/fr.svg";
+import usFlag from "@/assets/flags/us.svg";
 
 const isDark = useDark();
 
@@ -13,6 +15,7 @@ const { language, changeLanguage } = useLanguage();
       <BNavText>
         <a
           class="navbar-svg-link"
+          draggable="false"
           href="https://linkedin.com/in/teva-petorin-a6006a204"
           target="_blank"
           rel="noopener noreferrer"
@@ -34,6 +37,7 @@ const { language, changeLanguage } = useLanguage();
       <BNavText>
         <a
           class="navbar-svg-link"
+          draggable="false"
           href="https://github.com/Tev4"
           target="_blank"
           rel="noopener noreferrer"
@@ -56,6 +60,7 @@ const { language, changeLanguage } = useLanguage();
 
     <BNavbarBrand class="navbar-dark navbarbrand-button-style">
       <RouterLink
+        draggable="false"
         :to="{ name: 'Home', params: { lang: language } }"
         class="no-link-style"
       >
@@ -63,7 +68,35 @@ const { language, changeLanguage } = useLanguage();
       </RouterLink>
     </BNavbarBrand>
 
-    <BNavbarToggle target="nav-offcanvas" />
+    <BNav class="d-none d-md-flex align-items-center navbar-options">
+      <li class="nav-item d-flex align-items-center">
+        <button
+          type="button"
+          class="language-toggle"
+          :aria-label="
+            language == 'fr' ? 'Afficher en anglais' : 'Display in French'
+          "
+          @click="changeLanguage(language == 'fr' ? 'en' : 'fr')"
+        >
+          <img
+            :src="language == 'fr' ? frFlag : usFlag"
+            alt=""
+            class="flag-icon"
+            draggable="false"
+          />
+        </button>
+        <button
+          type="button"
+          class="theme-toggle"
+          :aria-label="language == 'fr' ? 'Mode sombre' : 'Dark mode'"
+          @click="isDark = !isDark"
+        >
+          <i :class="isDark ? 'bi bi-moon-fill' : 'bi bi-sun-fill'"></i>
+        </button>
+      </li>
+    </BNav>
+
+    <BNavbarToggle target="nav-offcanvas" class="d-md-none" />
   </BNavbar>
 
   <BOffcanvas id="nav-offcanvas" title="Menu" placement="end" is-nav>
@@ -75,25 +108,37 @@ const { language, changeLanguage } = useLanguage();
             {{ language == "fr" ? "Langage" : "Language" }}:
           </p>
         </BCol>
-        <BCol>
-          <BButton
+        <BCol cols="auto">
+          <button
+            type="button"
+            class="language-toggle"
+            :class="{ active: language == 'fr' }"
+            aria-label="French"
             @click="changeLanguage('fr')"
-            aria-label="Français"
-            variant="link"
-            class="flag-emoji"
-            :class="language == 'fr' ? 'flag-emoji-selected' : ''"
           >
-            &#x1f1eb;&#x1f1f7;
-          </BButton>
-          <BButton
-            @click="changeLanguage('en')"
+            <img
+              :src="frFlag"
+              alt="French"
+              class="flag-icon"
+              draggable="false"
+            />
+          </button>
+        </BCol>
+        <BCol cols="auto">
+          <button
+            type="button"
+            class="language-toggle"
+            :class="{ active: language == 'en' }"
             aria-label="English"
-            variant="link"
-            class="flag-emoji"
-            :class="language == 'en' ? 'flag-emoji-selected' : ''"
+            @click="changeLanguage('en')"
           >
-            &#x1f1fa;&#x1f1f8;
-          </BButton>
+            <img
+              :src="usFlag"
+              alt="English"
+              class="flag-icon"
+              draggable="false"
+            />
+          </button>
         </BCol>
       </BRow>
       <BRow class="offcanvas-brow">
@@ -103,11 +148,14 @@ const { language, changeLanguage } = useLanguage();
           </p>
         </BCol>
         <BCol>
-          <div class="dark-mode-switch">
-            <i class="bi bi-sun-fill dark-mode-icon"></i>
-            <BFormCheckbox switch size="lg" v-model="isDark" />
-            <i class="bi bi-moon-fill dark-mode-icon"></i>
-          </div>
+          <button
+            type="button"
+            class="theme-toggle"
+            :aria-label="language == 'fr' ? 'Mode sombre' : 'Dark mode'"
+            @click="isDark = !isDark"
+          >
+            <i :class="isDark ? 'bi bi-moon-fill' : 'bi bi-sun-fill'"></i>
+          </button>
         </BCol>
       </BRow>
       <BRow class="offcanvas-brow d-flex d-md-none">
@@ -119,6 +167,7 @@ const { language, changeLanguage } = useLanguage();
         <BCol>
           <a
             class="navbar-svg-link"
+            draggable="false"
             href="https://linkedin.com/in/teva-petorin-a6006a204"
             target="_blank"
             rel="noopener noreferrer"
@@ -138,6 +187,7 @@ const { language, changeLanguage } = useLanguage();
           </a>
           <a
             class="navbar-svg-link"
+            draggable="false"
             href="https://github.com/Tev4"
             target="_blank"
             rel="noopener noreferrer"
@@ -174,6 +224,7 @@ const { language, changeLanguage } = useLanguage();
 .navbar-svg-link {
   margin-left: 0.25rem !important;
   margin-right: 0.25rem !important;
+  -webkit-user-drag: none;
 }
 
 .navbarbrand-button-style {
@@ -221,63 +272,61 @@ const { language, changeLanguage } = useLanguage();
   padding: 1px;
 }
 
-.flag-emoji {
-  font-size: 30px;
-  color: rgb(160, 160, 160);
-  text-decoration: none;
-  text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5);
+.language-toggle {
   padding: 0;
   margin-left: 0.25rem !important;
   margin-right: 0.25rem !important;
+  border: none;
+  background: none;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  -webkit-transition: transform 0.15s ease;
+  -moz-transition: transform 0.15s ease;
+  -o-transition: transform 0.15s ease;
+  -ms-transition: transform 0.15s ease;
 }
 
-.flag-emoji:hover {
-  text-decoration: underline;
-  color: black;
+.language-toggle:hover,
+.language-toggle:focus-visible {
+  transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -o-transform: scale(1.1);
+  -ms-transform: scale(1.1);
 }
 
-.flag-emoji:focus,
-.flag-emoji:active {
-  text-decoration: underline;
-  color: black;
+.flag-icon {
+  display: block;
+  width: 30px;
+  height: 20px;
+  object-fit: cover;
+  object-position: left center;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  -webkit-user-drag: none;
 }
 
-.flag-emoji-selected {
-  text-decoration: underline;
+/* The navbar is always dark, so its controls ignore the light/dark theme */
+.navbar-options .theme-toggle {
+  color: rgb(160, 160, 160);
+  margin-left: 0.5rem;
 }
 
-html.dark .flag-emoji:hover {
+.navbar-options .theme-toggle:hover,
+.navbar-options .theme-toggle:focus-visible,
+.navbar-options .theme-toggle:active {
   color: white;
 }
 
-html.dark .flag-emoji:focus,
-html.dark .flag-emoji:active {
-  color: white;
-}
-
-html.dark .flag-emoji-selected {
-  color: rgb(95, 95, 95);
-}
-
-.dark-mode-switch {
-  display: flex;
-  text-align: center;
-  align-items: center;
-}
-
-.form-switch {
-  padding-left: 3rem;
-  padding-right: 0rem;
-  padding-top: 0;
-  padding-bottom: 0;
-  min-height: 0;
-}
-
-.dark-mode-icon {
+.theme-toggle {
+  padding: 0;
+  border: none;
+  background: none;
   font-size: 20px;
-  margin-top: -0.1rem;
-  margin-left: 0.3rem;
-  margin-right: 0.3rem;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
 }
 
 .container-fluid {
@@ -293,13 +342,28 @@ html.dark .flag-emoji-selected {
   -ms-transform: translateX(-1.5rem);
 }
 
+/* Keep the brand perfectly centered once the side controls are shown */
+@media (min-width: 768px) {
+  .navbar-brand {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+  }
+}
+
 @media (max-width: 768px) {
   .navbar-brand {
     transform: translateX(1.8rem);
-    -webkit-transform: translateX(-1.8rem);
-    -moz-transform: translateX(-1.8rem);
-    -o-transform: translateX(-1.8rem);
-    -ms-transform: translateX(-1.8rem);
+    -webkit-transform: translateX(1.8rem);
+    -moz-transform: translateX(1.8rem);
+    -o-transform: translateX(1.8rem);
+    -ms-transform: translateX(1.8rem);
   }
 }
 
@@ -338,5 +402,14 @@ html.dark .flag-emoji-selected {
 
 .offcanvas-brow {
   align-items: center;
+}
+@media (max-width: 768px) {
+  #nav-offcanvas .language-toggle {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  #nav-offcanvas .language-toggle:not(.active) img {
+    filter: brightness(0.6) !important;
+  }
 }
 </style>
