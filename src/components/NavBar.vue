@@ -4,10 +4,7 @@ import { useLanguage } from "@/composables/useLanguage";
 
 const isDark = useDark();
 
-const { language } = useLanguage();
-const changeLanguage = (lang: string) => {
-  language.value = lang;
-};
+const { language, changeLanguage } = useLanguage();
 </script>
 
 <template>
@@ -58,7 +55,10 @@ const changeLanguage = (lang: string) => {
     </BNav>
 
     <BNavbarBrand class="navbar-dark navbarbrand-button-style">
-      <RouterLink :to="`/`" class="no-link-style">
+      <RouterLink
+        :to="{ name: 'Home', params: { lang: language } }"
+        class="no-link-style"
+      >
         <h2 class="fw-bold">Teva PETORIN</h2>
       </RouterLink>
     </BNavbarBrand>

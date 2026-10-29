@@ -11,4 +11,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 import "./assets/main.css";
 
-createApp(App).use(createBootstrap()).use(router).mount("#app");
+const app = createApp(App).use(createBootstrap()).use(router);
+
+// Wait for the first navigation (which may redirect to a language prefix)
+// so the page is not rendered before the correct language is known.
+router.isReady().then(() => app.mount("#app"));

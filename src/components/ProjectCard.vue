@@ -117,7 +117,9 @@ const resume = () => {
 <template>
   <transition name="fade" appear>
     <BCol cols="12" md="6" lg="4" class="mb-4">
-      <RouterLink :to="`/projects/${project}`">
+      <RouterLink
+        :to="{ name: 'ProjectDetail', params: { lang: language, id: project } }"
+      >
         <BCard
           :class="{ 'no-hover': isMobile }"
           @mouseenter="!isMobile && resume()"
