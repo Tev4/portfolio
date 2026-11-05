@@ -25,11 +25,22 @@ const myCarousel = useTemplateRef("project_carousel");
 
 const images = ref<string[]>([]);
 const loadedImagesCache = ref<{ [key: string]: string[] }>({}); // Cache to store loaded images
+const isLoaded = ref(false); // False while the card shows its ghost placeholder
+
+// Resolves once the browser actually has the image decoded (or failed)
+const waitForImage = (url: string) =>
+  new Promise<void>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url;
+  });
 
 const loadProjectImages = async (project: string) => {
   // If already cached, just use it
   if (loadedImagesCache.value[project]) {
     images.value = loadedImagesCache.value[project];
+    isLoaded.value = true;
     return;
   }
 
@@ -47,7 +58,10 @@ const loadProjectImages = async (project: string) => {
     return getNumber(pathA) - getNumber(pathB);
   });
 
-  if (filteredEntries.length === 0) return;
+  if (filteredEntries.length === 0) {
+    isLoaded.value = true;
+    return;
+  }
 
   // --- Load & Preload the first image immediately ---
   const [firstPath, firstImporter] = filteredEntries[0];
@@ -62,6 +76,8 @@ const loadProjectImages = async (project: string) => {
   document.head.appendChild(preloadLink);
 
   images.value = [firstImageUrl];
+  await waitForImage(firstImageUrl);
+  isLoaded.value = true;
   if (isMobile.value) {
     loadedImagesCache.value[project] = [firstImageUrl];
   }
@@ -126,7 +142,11 @@ const resume = () => {
           @mouseenter="!isMobile && resume()"
           @mouseleave="!isMobile && pause()"
         >
+          <div v-if="!isLoaded" class="card-ghost" aria-hidden="true">
+            <div v-if="title" class="card-ghost-title"></div>
+          </div>
           <BCarousel
+            v-else
             :interval="2000"
             :ride="isMobile ? 'carousel' : false"
             ref="project_carousel"
@@ -146,12 +166,12 @@ const resume = () => {
             />
           </BCarousel>
           <div
-            v-if="title"
+            v-if="title && isLoaded"
             class="position-absolute bottom-0 w-100 bg-light text-center custom-card-title"
           >
             <h4 class="m-0">{{ title }}</h4>
           </div>
-          <div v-if="!isMobile" class="card-links">
+          <div v-if="!isMobile && isLoaded" class="card-links">
             <a
               v-if="directlink"
               :href="directlink"
@@ -229,6 +249,67 @@ const resume = () => {
 </template>
 
 <style scoped>
+.card-ghost {
+  position: relative;
+  height: 15rem;
+  overflow: hidden;
+  background-color: #e9ecef;
+}
+
+.card-ghost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7),
+    transparent
+  );
+  animation: ghost-shimmer 1.5s infinite;
+}
+
+html.dark .card-ghost {
+  background-color: #353c42;
+}
+
+html.dark .card-ghost::after {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.09),
+    transparent
+  );
+}
+
+.card-ghost-title {
+  position: absolute;
+  bottom: 0.45rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45%;
+  height: 1.25rem;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+html.dark .card-ghost-title {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+@keyframes ghost-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-ghost::after {
+    animation: none;
+  }
+}
+
 .card {
   --bs-card-spacer-y: 0;
   overflow: hidden;

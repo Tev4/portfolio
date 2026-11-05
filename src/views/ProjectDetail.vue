@@ -192,7 +192,7 @@ onMounted(() => {
 <style scoped>
 .project-title-row {
   display: flex;
-  align-items: end;
+  align-items: baseline;
   margin-bottom: 0.5rem !important;
 }
 
@@ -203,7 +203,6 @@ onMounted(() => {
 
 .project_subtitle {
   opacity: 70%;
-  margin-bottom: 0.05rem !important;
 }
 
 .project_description {
