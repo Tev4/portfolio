@@ -30,9 +30,9 @@ export const projects: Project[] = [
       "Agentic Coding",
     ],
     description_fr:
-      "Voici un aperçu des choses que j'ai pu faire/contribuer pour Empowered Futures",
+      "Voici un aperçu des choses sur lesquelles j'ai travaillé pour Empowered Futures",
     description_en:
-      "Here’s an overview of the things I have made/contributed to for Empowered Futures.",
+      "Here’s an overview of the things I have worked on for Empowered Futures.",
     directLink: "https://www.empoweredfutures.ca/",
   },
   {

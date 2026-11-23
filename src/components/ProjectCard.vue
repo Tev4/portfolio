@@ -24,7 +24,7 @@ const imageModules = import.meta.glob("/src/assets/project_images/*/*.webp", {
 const myCarousel = useTemplateRef("project_carousel");
 
 const images = ref<string[]>([]);
-const loadedImagesCache = ref<{ [key: string]: string[] }>({}); // Cache to store loaded images
+const loadedImagesCache = ref<{ [key: string]: string }>({}); // Cache the first image
 const isLoaded = ref(false); // False while the card shows its ghost placeholder
 
 // Resolves once the browser actually has the image decoded (or failed)
@@ -36,121 +36,65 @@ const waitForImage = (url: string) =>
     img.src = url;
   });
 
-const loadProjectImages = async (project: string) => {
+const loadProjectImage = async (project: string) => {
   // If already cached, just use it
-  if (loadedImagesCache.value[project]) {
-    images.value = loadedImagesCache.value[project];
+  const cached = loadedImagesCache.value[project];
+  if (cached) {
+    images.value = [cached];
     isLoaded.value = true;
     return;
   }
 
   const prefix = `/src/assets/project_images/${project}/`;
 
-  // Filter and sort image paths
-  const filteredEntries = Object.entries(imageModules).filter(([path]) =>
-    path.startsWith(prefix),
-  );
-  filteredEntries.sort(([pathA], [pathB]) => {
-    const getNumber = (path: string) => {
-      const match = path.match(/(\d+)\.webp$/);
-      return match ? parseInt(match[1], 10) : 0;
-    };
-    return getNumber(pathA) - getNumber(pathB);
-  });
+  // Only the first image is shown on the card: filter by project, sort by filename number
+  const firstEntry = Object.entries(imageModules)
+    .filter(([path]) => path.startsWith(prefix))
+    .sort(([pathA], [pathB]) => {
+      const getNumber = (path: string) => {
+        const match = path.match(/(\d+)\.webp$/);
+        return match ? parseInt(match[1], 10) : 0;
+      };
+      return getNumber(pathA) - getNumber(pathB);
+    })[0];
 
-  if (filteredEntries.length === 0) {
+  if (!firstEntry) {
     isLoaded.value = true;
     return;
   }
 
-  // --- Load & Preload the first image immediately ---
-  const [firstPath, firstImporter] = filteredEntries[0];
-  const firstModule = await firstImporter();
-  const firstImageUrl = firstModule as string;
-
-  // Add rel="preload" for the first image
-  const preloadLink = document.createElement("link");
-  preloadLink.rel = "preload";
-  preloadLink.as = "image";
-  preloadLink.href = firstImageUrl;
-  document.head.appendChild(preloadLink);
-
+  const firstImageUrl = (await firstEntry[1]()) as string;
   images.value = [firstImageUrl];
   await waitForImage(firstImageUrl);
+  loadedImagesCache.value[project] = firstImageUrl;
   isLoaded.value = true;
-  if (isMobile.value) {
-    loadedImagesCache.value[project] = [firstImageUrl];
-  }
-
-  if (!isMobile.value) {
-    // --- Prefetch the remaining images in background ---
-    (async () => {
-      const remaining = await Promise.all(
-        filteredEntries.slice(1).map(async ([, importer]) => {
-          const mod = await importer();
-          const url = mod as string;
-
-          // Add rel="prefetch" for lazy loading
-          const link = document.createElement("link");
-          link.rel = "prefetch";
-          link.as = "image";
-          link.href = url;
-          document.head.appendChild(link);
-
-          return url;
-        }),
-      );
-
-      const all = [firstImageUrl, ...remaining];
-      loadedImagesCache.value[project] = all;
-      images.value = all; // Update carousel once everything is prefetched
-    })();
-  }
 };
 
 onMounted(async () => {
   isMobile.value = /Mobi|Android/i.test(navigator.userAgent);
-  await loadProjectImages(props.project);
-  if (!isMobile.value) {
-    await nextTick();
-if (myCarousel.value?.$el) { myCarousel.value.$el.addEventListener('dragstart', (e) => e.preventDefault()); }
-    myCarousel.value?.pause();
+  await loadProjectImage(props.project);
+  await nextTick();
+  if (myCarousel.value?.$el) {
+    myCarousel.value.$el.addEventListener("dragstart", (e) =>
+      e.preventDefault(),
+    );
   }
 });
-
-const pause = () => {
-  if (!isMobile.value) {
-    myCarousel.value?.pause();
-  }
-};
-
-const resume = () => {
-  if (!isMobile.value) {
-    myCarousel.value?.resume();
-  }
-};
 </script>
 
 <template>
   <transition name="fade" appear>
-    <BCol cols="12" md="6" lg="4" class="mb-4">
+    <BCol cols="12" md="6" lg="4">
       <RouterLink
         :to="{ name: 'ProjectDetail', params: { lang: language, id: project } }"
       >
-        <BCard
-          :class="{ 'no-hover': isMobile }"
-          @mouseenter="!isMobile && resume()"
-          @mouseleave="!isMobile && pause()"
-        >
+        <BCard :class="{ 'no-hover': isMobile }">
           <div v-if="!isLoaded" class="card-ghost" aria-hidden="true">
             <div v-if="title" class="card-ghost-title"></div>
           </div>
           <BCarousel
             v-else
-            :interval="2000"
-            :ride="isMobile ? 'carousel' : false"
             ref="project_carousel"
-            no-hover-pause
             class="home_carousel"
             :background="isDark ? '#353c42' : 'transparent'"
           >

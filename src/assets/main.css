@@ -2,7 +2,7 @@
 
 #app {
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 2rem 0;
   font-weight: normal;
 }
 
@@ -45,11 +45,32 @@ main {
   --bs-card-spacer-x: 0;
   z-index: 0;
   max-height: 15rem;
-  transition: transform 0.2s 0s ease-in-out, z-index 0s 100ms;
-  -webkit-transition: transform 0.2s 0s ease-in-out, z-index 0s 100ms;
-  -moz-transition: transform 0.2s 0s ease-in-out, z-index 0s 100ms;
-  -o-transition: transform 0.2s 0s ease-in-out, z-index 0s 100ms;
-  -ms-transition: transform 0.2s 0s ease-in-out, z-index 0s 100ms;
+  transition:
+    transform 0.2s 0s ease-in-out,
+    z-index 0s 100ms;
+  -webkit-transition:
+    transform 0.2s 0s ease-in-out,
+    z-index 0s 100ms;
+  -moz-transition:
+    transform 0.2s 0s ease-in-out,
+    z-index 0s 100ms;
+  -o-transition:
+    transform 0.2s 0s ease-in-out,
+    z-index 0s 100ms;
+  -ms-transition:
+    transform 0.2s 0s ease-in-out,
+    z-index 0s 100ms;
+}
+
+/* vertical spacing between card rows, without trailing space after the last
+   row (which would create a scrollbar when all cards already fit) */
+.card-grid-container .row {
+  row-gap: 1.5rem;
+}
+
+.carousel-inner img {
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .carousel {
@@ -63,17 +84,23 @@ main {
 
 @media (hover: hover) and (min-width: 768px) {
   .card:hover {
-    transform: scale(1.25);
+    transform: scale(1.1);
     z-index: 999;
-    transition: transform 0.2s 0s ease-in-out, z-index 0s 0s;
-    -webkit-transition: transform 0.2s 0s ease-in-out, z-index 0s 0s;
-    -moz-transition: transform 0.2s 0s ease-in-out, z-index 0s 0s;
-    -o-transition: transform 0.2s 0s ease-in-out, z-index 0s 0s;
-    -ms-transition: transform 0.2s 0s ease-in-out, z-index 0s 0s;
-  }
-
-  .card:hover .carousel-inner img {
-    object-fit: contain;
+    transition:
+      transform 0.2s 0s ease-in-out,
+      z-index 0s 0s;
+    -webkit-transition:
+      transform 0.2s 0s ease-in-out,
+      z-index 0s 0s;
+    -moz-transition:
+      transform 0.2s 0s ease-in-out,
+      z-index 0s 0s;
+    -o-transition:
+      transform 0.2s 0s ease-in-out,
+      z-index 0s 0s;
+    -ms-transition:
+      transform 0.2s 0s ease-in-out,
+      z-index 0s 0s;
   }
 }
 
@@ -116,17 +143,24 @@ main {
 }
 
 .detail_carousel .carousel-inner img {
-  object-fit: contain;
+  /* size the box to the image itself: object-fit: contain would letterbox the
+     pixels inside a wider box, showing the zoom cursor over empty space */
+  width: auto !important;
+  height: auto;
   max-width: 75%;
+  /* scale continuously with the viewport: cap by screen height, and by screen
+     width on narrow screens so tall images don't dominate mobile layouts */
+  max-height: min(60vh, 60vw);
   margin: auto !important;
+  cursor: zoom-in;
 }
 
-/* Stretch the caption itself over the whole carousel: Bootstrap gives it a
-   small box at the slide's base, and the zoom overlay fills the caption box. */
-.detail_carousel .carousel-caption {
-  inset: 0;
-  height: auto;
-  padding: 0;
+/* The side arrows must not overlap the centered image: Bootstrap gives the
+   arrows 15% of the carousel width and the image is 75% of it, so narrowing
+   the arrows keeps their clickboxes clear of the image. */
+.detail_carousel .carousel-control-prev,
+.detail_carousel .carousel-control-next {
+  width: 10%;
 }
 
 .detail_carousel .carousel {
@@ -137,44 +171,15 @@ main {
   height: 100%;
 }
 
-.detail_carousel .carousel-item {
-  display: flex !important;
+/* Center the image in the fixed-height slide so the prev/next arrows stay put
+   when images have different resolutions. */
+.detail_carousel .carousel-inner > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
 }
 
 .detail_carousel .carousel-indicators {
   bottom: -3rem;
 }
-
-/* Disgusting but i couldn't figure out to scale image otherwise, its a nightmare to modify that thing */
-/* ( */
-@media (max-width: 768px) {
-  .detail_carousel .carousel-inner img {
-    max-height: 29vh;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  .detail_carousel .carousel-inner img {
-    max-height: 40vh;
-  }
-}
-
-@media (min-width: 991px) and (max-width: 1200px) {
-  .detail_carousel .carousel-inner img {
-    max-height: 50vh;
-  }
-}
-
-@media (min-width: 1200px) and (max-width: 1400px) {
-  .detail_carousel .carousel-inner img {
-    max-height: 60vh;
-  }
-}
-
-@media (min-width: 1400px) {
-  .detail_carousel .carousel-inner img {
-    max-height: 60vh;
-  }
-}
-/* ) */

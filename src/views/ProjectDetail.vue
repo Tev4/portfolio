@@ -2,7 +2,7 @@
 import NavBar from "@/components/NavBar.vue";
 import { useRoute } from "vue-router";
 import { projects } from "../projects";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, useTemplateRef } from "vue";
 import { BCarousel, BCarouselSlide } from "bootstrap-vue-next";
 import { useLanguage } from "@/composables/useLanguage";
 import { useDark } from "@vueuse/core";
@@ -21,6 +21,7 @@ const imageModules = import.meta.glob("/src/assets/project_images/*/*.webp", {
 
 const images = ref<string[]>([]);
 const loadedImagesCache = ref<{ [key: string]: string[] }>({}); // Cache to store loaded images
+const myCarousel = useTemplateRef("project_carousel");
 
 const loadProjectImages = async (project: string) => {
   // If images are already loaded for this project, use the cached version
@@ -58,13 +59,21 @@ const loadProjectImages = async (project: string) => {
   loadedImagesCache.value[project] = loadedImages; // Cache the images for future use
 };
 
-const openImageInNewTab = (src: string) => {
-  window.open(src, "_blank", "noopener,noreferrer");
+// Bind to the image itself so the clickable area is always the image's real
+// size, whatever its aspect ratio or max-height constraint happens to be.
+const openImageOnClick = (event: MouseEvent) => {
+  const img = (event.target as HTMLElement | null)?.closest("img");
+  if (img?.src) window.open(img.src, "_blank", "noopener,noreferrer");
 };
 
 onMounted(() => {
   if (project) {
     loadProjectImages(project.id);
+  }
+  const carouselEl = myCarousel.value?.$el;
+  if (carouselEl) {
+    carouselEl.addEventListener("click", openImageOnClick);
+    carouselEl.addEventListener("dragstart", (event) => event.preventDefault());
   }
 });
 </script>
@@ -76,7 +85,16 @@ onMounted(() => {
 
   <main>
     <transition name="fade" appear>
-      <BContainer v-if="project">
+      <BContainer v-if="project" fluid class="position-relative">
+        <BButton
+          variant="link"
+          :to="{ name: 'Home', params: { lang: language } }"
+          class="back-button custom-link"
+          :aria-label="language == 'fr' ? 'Retour' : 'Back'"
+          @dragstart.prevent
+        >
+          <i class="bi bi-arrow-left"></i>
+        </BButton>
         <div class="d-flex flex-column align-items-center text-center">
           <BRow class="text-center mb-0 project-title-row">
             <BCol md="auto">
@@ -91,7 +109,7 @@ onMounted(() => {
             </BCol>
           </BRow>
           <div class="d-flex align-items-center mb-2"></div>
-          <div class="d-flex gap-2 mb-3">
+          <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
             <BBadge
               class="tech-badge"
               v-for="tech in project.techStack"
@@ -121,17 +139,7 @@ onMounted(() => {
                 ? `Image ${index + 1} pour le projet: ${project}`
                 : `Image ${index + 1} for project: ${project}`
             "
-          >
-            <div
-              class="zoom-overlay"
-              role="button"
-              :aria-label="language == 'fr' ? 'Ouvrir l’image dans un nouvel onglet' : 'Open image in a new tab'"
-              tabindex="0"
-              @click="openImageInNewTab(image)"
-              @keydown.enter="openImageInNewTab(image)"
-              @keydown.space.prevent="openImageInNewTab(image)"
-            />
-          </BCarouselSlide>
+          />
         </BCarousel>
         <p class="project_description">
           {{
@@ -140,28 +148,15 @@ onMounted(() => {
         </p>
 
         <div class="project_description">
-          <a
+          <BButton
+            variant="link"
+            class="custom-link"
             v-if="project.githubLink"
             :href="project.githubLink"
             target="_blank"
             rel="noopener noreferrer"
-            class="card-link-btn"
-            :aria-label="language == 'fr' ? 'Voir sur GitHub' : 'See on Github'"
-            @click.stop
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="30"
-              height="30"
-              :fill="isDark ? '#FFFFFF' : '#000000'"
-              class="bi bi-github"
-              viewBox="0 0 16 16"
-            >
-              <path
-                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
-              />
-            </svg>
-          </a>
+            >{{ language == "fr" ? "Dépôt GitHub" : "Github Repository" }}
+          </BButton>
           <a
             v-if="project.itchioLink"
             :href="project.itchioLink"
@@ -204,6 +199,21 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.back-button {
+  position: absolute;
+  top: 0.2rem;
+  left: 1.5rem;
+  padding: 0;
+  text-decoration: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.back-button .bi-arrow-left {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
 .project-title-row {
   display: flex;
   align-items: baseline;
@@ -226,14 +236,9 @@ onMounted(() => {
 }
 
 .carousel {
-  max-height: 60vw;
+  height: min(60vh, 60vw);
   max-width: 80rem;
-}
-
-.zoom-overlay {
-  position: absolute;
-  inset: 0;
-  cursor: zoom-in;
+  margin-inline: auto;
 }
 
 .tech-badge {

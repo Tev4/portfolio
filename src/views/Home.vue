@@ -13,7 +13,7 @@ const projectList = ref(projects);
   </header>
 
   <main>
-    <BContainer class="my-4 card-grid-container">
+    <BContainer class="mt-4 card-grid-container">
       <BRow>
         <ProjectCard
           v-for="project in projectList"
