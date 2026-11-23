@@ -87,6 +87,7 @@ onMounted(async () => {
     <BCol cols="12" md="6" lg="4">
       <RouterLink
         :to="{ name: 'ProjectDetail', params: { lang: language, id: project } }"
+        @dragstart.prevent
       >
         <BCard :class="{ 'no-hover': isMobile }">
           <div v-if="!isLoaded" class="card-ghost" aria-hidden="true">
@@ -258,6 +259,8 @@ html.dark .card-ghost-title {
   --bs-card-spacer-y: 0;
   overflow: hidden;
   border-color: var(--bs-dark);
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 html.dark .card {
