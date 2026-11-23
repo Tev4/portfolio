@@ -218,6 +218,8 @@ onMounted(() => {
   display: flex;
   align-items: baseline;
   margin-bottom: 0.5rem !important;
+  /* keep the title clear of the absolutely-positioned back arrow */
+  padding-inline: 4rem;
 }
 
 .project-title-row h2,
