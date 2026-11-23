@@ -58,6 +58,10 @@ const loadProjectImages = async (project: string) => {
   loadedImagesCache.value[project] = loadedImages; // Cache the images for future use
 };
 
+const openImageInNewTab = (src: string) => {
+  window.open(src, "_blank", "noopener,noreferrer");
+};
+
 onMounted(() => {
   if (project) {
     loadProjectImages(project.id);
@@ -117,7 +121,17 @@ onMounted(() => {
                 ? `Image ${index + 1} pour le projet: ${project}`
                 : `Image ${index + 1} for project: ${project}`
             "
-          />
+          >
+            <div
+              class="zoom-overlay"
+              role="button"
+              :aria-label="language == 'fr' ? 'Ouvrir l’image dans un nouvel onglet' : 'Open image in a new tab'"
+              tabindex="0"
+              @click="openImageInNewTab(image)"
+              @keydown.enter="openImageInNewTab(image)"
+              @keydown.space.prevent="openImageInNewTab(image)"
+            />
+          </BCarouselSlide>
         </BCarousel>
         <p class="project_description">
           {{
@@ -214,6 +228,12 @@ onMounted(() => {
 .carousel {
   max-height: 60vw;
   max-width: 80rem;
+}
+
+.zoom-overlay {
+  position: absolute;
+  inset: 0;
+  cursor: zoom-in;
 }
 
 .tech-badge {

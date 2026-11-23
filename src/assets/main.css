@@ -121,6 +121,14 @@ main {
   margin: auto !important;
 }
 
+/* Stretch the caption itself over the whole carousel: Bootstrap gives it a
+   small box at the slide's base, and the zoom overlay fills the caption box. */
+.detail_carousel .carousel-caption {
+  inset: 0;
+  height: auto;
+  padding: 0;
+}
+
 .detail_carousel .carousel {
   width: 100%;
 }

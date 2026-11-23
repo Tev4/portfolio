@@ -16,6 +16,26 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: "empowered_futures",
+    title: "Empowered Futures",
+    homeTitle: true,
+    subtitle_fr: "Plateforme de mentorat",
+    subtitle_en: "Mentoring platform",
+    techStack: [
+      "Next.js",
+      "Tailwind CSS",
+      "PostgreSQL",
+      "GraphQL",
+      "Prisma",
+      "Agentic Coding",
+    ],
+    description_fr:
+      "Voici un aperçu des choses que j'ai pu faire/contribuer pour Empowered Futures",
+    description_en:
+      "Here’s an overview of the things I have made/contributed to for Empowered Futures.",
+    directLink: "https://www.empoweredfutures.ca/",
+  },
+  {
     id: "simple_reminders",
     title: "Simple Reminders",
     homeTitle: true,
